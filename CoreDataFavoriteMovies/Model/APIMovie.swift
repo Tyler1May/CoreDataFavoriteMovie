@@ -6,6 +6,15 @@
 //
 
 import Foundation
+import CoreData
+
+struct SearchResponse: Codable {
+    let movies: [APIMovie]
+    
+    enum CodingKeys: String, CodingKey {
+        case movies = "Search"
+    }
+}
 
 struct APIMovie: Codable, Identifiable, Hashable {
     let title: String

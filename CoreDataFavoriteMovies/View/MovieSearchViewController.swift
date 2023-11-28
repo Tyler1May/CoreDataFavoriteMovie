@@ -40,6 +40,24 @@ class MovieSearchViewController: UIViewController {
         datasource?.apply(snapshot)
     }
     
+    func toggleFavorite(_ movie: APIMovie, cell: MovieTableViewCell) {
+        if let exisitingFavorite = movieController.favoriteMovie(from: movie.imdbID) {
+            movieController.unfavoriteMovie(exisitingFavorite)
+            cell.setUnFavorite()
+        } else {
+            movieController.saveFavMovie(with: movie.title, for: movie)
+            cell.setFavorite()
+        }
+        reload(movie)
+    }
+    
+    func reload(_ movie: APIMovie) {
+        var snapshot = datasource.snapshot()
+        snapshot.reloadItems([movie])
+        datasource?.apply(snapshot, animatingDifferences: true)
+    }
+
+    
 }
 
 private extension MovieSearchViewController {
@@ -54,7 +72,7 @@ private extension MovieSearchViewController {
         datasource = UITableViewDiffableDataSource<Int, APIMovie>(tableView: tableView) { tableView, indexPath, movie in
             let cell = tableView.dequeueReusableCell(withIdentifier: MovieTableViewCell.reuseIdentifier) as! MovieTableViewCell
             cell.update(with: movie) {
-                self.toggleFavorite(movie)
+                self.toggleFavorite(movie, cell: cell)
             }
             return cell
         }
@@ -78,17 +96,6 @@ private extension MovieSearchViewController {
         snapshot.appendItems(movies)
         datasource?.apply(snapshot, animatingDifferences: true)
         tableView.backgroundView = movies.isEmpty ? backgroundView : nil
-    }
-
-    func toggleFavorite(_ movie: APIMovie) {
-        print("SEE! I knew you liked \(movie.title)!")
-        // TODO: Save movie to core data so it can become a favorite
-    }
-    
-    func reload(_ movie: APIMovie) {
-        var snapshot = datasource.snapshot()
-        snapshot.reloadItems([movie])
-        datasource?.apply(snapshot, animatingDifferences: true)
     }
     
 }
